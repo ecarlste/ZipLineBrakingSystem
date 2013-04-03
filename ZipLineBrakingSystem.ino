@@ -3,33 +3,34 @@
 
 
 // Digital Pin Mapping
-const int LED0 = 0;
-const int LED1 = 1;
-const int LED2 = 4;
-const int LED3 = 5;
-const int LED4 = 6;
-const int LED5 = 7;
-const int LED6 = 8;
-const int LED7 = 10;
+#define LED0 0
+#define LED1 1
+#define LED2 4
+#define LED3 5
+#define LED4 6
+#define LED5 7
+#define LED6 8
+#define LED7 10
 
-const int returnPin = 2;
-const int securePin = 11;
-const int servoPin = 9;
+#define RETURN_PIN 2
+#define SECURE_PIN 11
+#define SERVO_PIN 9
 
 
 // Analog Pin Mapping
-const int ADXL345SCL = 5;
-const int ADXL345SDA = 4;
+#define ADXL345SCL 5
+#define ADXL345SDA 4
 
-const int batteryPin = 0;
+#define BATTERY_PIN 0
 
 
-// Servo Definitions
+// Brake Servo Definitions
 Servo brakeServo;
-
+#define NO_BRAKES 0
+#define FULL_BRAKES 165
 
 void setup() {
-  brakeServo.attach(servoPin);
+  brakeServo.attach(SERVO_PIN);
 }
 
 
@@ -40,3 +41,10 @@ void loop() {
 void setBrakeServoAngle(int angle) {
   brakeServo.write(angle);
 }
+
+
+int getBatteryLevel() {
+  int value = analogRead(BATTERY_PIN);
+  return value / 1023;
+}
+
