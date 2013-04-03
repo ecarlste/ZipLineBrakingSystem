@@ -1,3 +1,4 @@
+
 // Digital Pin Mapping
 const int LED0 = 0;
 const int LED1 = 1;
@@ -11,6 +12,13 @@ const int LED7 = 10;
 const int returnPin = 2;
 const int securePin = 11;
 const int servoPin = 9;
+
+
+// Analog Pin Mapping
+const int ADXL345SCL = 5;
+const int ADXL345SDA = 4;
+
+const int batteryPin = 0;
 
 
 void setup() {
