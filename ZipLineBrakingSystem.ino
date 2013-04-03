@@ -1,4 +1,7 @@
 
+#include <Servo.h>
+
+
 // Digital Pin Mapping
 const int LED0 = 0;
 const int LED1 = 1;
@@ -21,10 +24,19 @@ const int ADXL345SDA = 4;
 const int batteryPin = 0;
 
 
+// Servo Definitions
+Servo brakeServo;
+
+
 void setup() {
+  brakeServo.attach(servoPin);
 }
 
 
 void loop() {
 }
 
+
+void setBrakeServoAngle(int angle) {
+  brakeServo.write(angle);
+}
