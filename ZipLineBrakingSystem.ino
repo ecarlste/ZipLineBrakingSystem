@@ -25,11 +25,15 @@
 
 
 // Brake Servo Definitions
-Servo brakeServo;
 #define NO_BRAKES 0
 #define FULL_BRAKES 165
+Servo brakeServo;
 
 void setup() {
+  // Set initial pin modes
+  pinMode(SECURE_PIN, INPUT);
+
+  // set up brake servo
   brakeServo.attach(SERVO_PIN);
 }
 
@@ -46,5 +50,22 @@ void setBrakeServoAngle(int angle) {
 int getBatteryLevel() {
   int value = analogRead(BATTERY_PIN);
   return value / 1023;
+}
+
+
+int isCaseSecure() {
+  int value = digitalRead(SECURE_PIN);
+//------------------------------------------------------------------------------
+  /*
+  Here we expect that if the case is secured shut that the circuit attached to
+  the SECURE_PIN will show a voltage of 3V or more. If it is then we should
+  return true. Otherwise the case is not secured, and we should return false.
+   */
+  if (value == HIGH) {
+    return 1;
+  } 
+  else {
+    return 0;
+  }
 }
 
