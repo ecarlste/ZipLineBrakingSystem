@@ -1,26 +1,16 @@
 
+#include <ADXL345.h>
 #include <Servo.h>
+#include <Wire.h>
 
 
 // Digital Pin Mapping
-#define LED0 0
-#define LED1 1
-#define LED2 4
-#define LED3 5
-#define LED4 6
-#define LED5 7
-#define LED6 8
-#define LED7 10
-
 #define RETURN_PIN 2
 #define SECURE_PIN 11
 #define SERVO_PIN 9
 
 
 // Analog Pin Mapping
-#define ADXL345SCL 5
-#define ADXL345SDA 4
-
 #define BATTERY_PIN 0
 
 
@@ -29,12 +19,31 @@
 #define FULL_BRAKES 165
 Servo brakeServo;
 
+
+// Accelerometer Definitions
+#define ADXL345SCL_PIN 5
+#define ADXL345SDA_PIN 4
+ADXL345 adxl;
+
+
+// LED Definitions
+#define LED0 7
+#define LED1 8
+#define LED2 12
+#define LED3 13
+#define LED_OFF 0
+#define LED_ON 1
+
+
 void setup() {
   // Set initial pin modes
   pinMode(SECURE_PIN, INPUT);
 
   // set up brake servo
   brakeServo.attach(SERVO_PIN);
+  
+  // initialize the ADXL345 accelerometer
+  adxl.powerOn();
 }
 
 
@@ -49,7 +58,7 @@ void setBrakeServoAngle(int angle) {
 
 int getBatteryLevel() {
   int value = analogRead(BATTERY_PIN);
-  return value / 1023;
+  return 100 * value / 1023;
 }
 
 
@@ -66,6 +75,16 @@ int isCaseSecure() {
   } 
   else {
     return 0;
+  }
+}
+
+
+void setLED(int pin, int value) {
+  if (value == LED_ON) {
+    digitalWrite(pin, HIGH);
+  }
+  else if (value == LED_OFF) {
+    digitalWrite(pin, LOW);
   }
 }
 
