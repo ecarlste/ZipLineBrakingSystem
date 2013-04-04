@@ -14,6 +14,11 @@
 #define BATTERY_PIN 0
 
 
+// Temperature Sensor Definitions
+#define TMP36_VOUT 1
+#define TMP36_MILLIVOLTS_PER_DEGREE_C 10
+
+
 // Brake Servo Definitions
 #define NO_BRAKES 0
 #define FULL_BRAKES 165
@@ -86,5 +91,12 @@ void setLED(int pin, int value) {
   else if (value == LED_OFF) {
     digitalWrite(pin, LOW);
   }
+}
+
+
+int getTemperature() {
+  int voltage = analogRead(TMP36_VOUT);
+  int temp = voltage * 1000 / TMP36_MILLIVOLTS_PER_DEGREE_C;
+  return temp;
 }
 
