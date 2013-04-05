@@ -5,7 +5,6 @@
 
 
 // Digital Pin Mapping
-#define RETURN_PIN 2
 #define SECURE_PIN 11
 #define SERVO_PIN 9
 
@@ -20,8 +19,9 @@
 
 
 // Brake Servo Definitions
-#define NO_BRAKES 0
-#define FULL_BRAKES 165
+#define BRAKES_OFF 0
+#define BRAKES_HOLD 165
+#define BRAKES_FULL 175
 Servo brakeServo;
 
 
@@ -39,6 +39,9 @@ ADXL345 adxl;
 #define LED_OFF 0
 #define LED_ON 1
 
+// Interrupt Definitions
+#define RETURN_IRQ 0
+
 
 void setup() {
   // Set initial pin modes
@@ -49,6 +52,9 @@ void setup() {
   
   // initialize the ADXL345 accelerometer
   adxl.powerOn();
+  
+  // Set up interrupts
+  attachInterrupt(RETURN_IRQ, returnToStart, RISING);
 }
 
 
@@ -98,5 +104,9 @@ int getTemperature() {
   int voltage = analogRead(TMP36_VOUT);
   int temp = voltage * 1000 / TMP36_MILLIVOLTS_PER_DEGREE_C;
   return temp;
+}
+
+
+void returnToStart() {
 }
 
