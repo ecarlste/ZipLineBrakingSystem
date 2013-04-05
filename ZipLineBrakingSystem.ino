@@ -158,6 +158,7 @@ void setModeReturning() {
 void returnToStart() {
   // check the system status to ensure ready to return
   int status = getSystemStatus();
+  updateLEDs(status);
   
   // start return trip
   
@@ -212,6 +213,37 @@ int getSystemStatus() {
   }
   
   return systemStatus;
+}
+
+
+void updateLEDs(int status) {
+  if ((BATTERY_OK & status) == 0) {
+    digitalWrite(BATTERY_OK_LED, LOW);
+  }
+  else {
+    digitalWrite(BATTERY_OK_LED, HIGH);
+  }
+  
+  if ((ACCELEROMETER_OK & status) == 0) {
+    digitalWrite(ACCELEROMETER_OK_LED, LOW);
+  }
+  else {
+    digitalWrite(ACCELEROMETER_OK_LED, HIGH);
+  }
+  
+  if ((CASE_SECURE_OK & status) == 0) {
+    digitalWrite(CASE_SECURE_OK_LED, LOW);
+  }
+  else {
+    digitalWrite(CASE_SECURE_OK_LED, HIGH);
+  }
+  
+  if ((TEMP_OK & status) == 0) {
+    digitalWrite(TEMP_OK_LED, LOW);
+  }
+  else {
+    digitalWrite(TEMP_OK_LED, HIGH);
+  }
 }
 
 
