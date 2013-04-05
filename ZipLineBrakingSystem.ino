@@ -1,5 +1,7 @@
 
+#include <math.h>
 #include <ADXL345.h>
+#include <EEPROM.h>
 #include <Servo.h>
 #include <Wire.h>
 
@@ -30,6 +32,7 @@ Servo brakeServo;
 // Accelerometer Definitions
 #define ADXL345SCL_PIN 5
 #define ADXL345SDA_PIN 4
+#define ADXL_SENSITIVITY 62.5f
 
 ADXL345 adxl;
 
@@ -69,6 +72,13 @@ int mode;
 #define TEMP_OK_LED          LED3
 
 
+// EEPROM Definitions
+#define BRAKE_DISTANCE_ADDRESS 0
+
+// total distance of the brake section of the zip line
+int brakeDistance;
+
+
 void setup() {
   // Set initial pin modes
   pinMode(SECURE_PIN, INPUT);
@@ -82,6 +92,7 @@ void setup() {
   // Set up interrupts
   attachInterrupt(RETURN_IRQ, setModeReturning, RISING);
   
+  brakeDistance = EEPROM.read(BRAKE_DISTANCE_ADDRESS);
   mode = MODE_AWAITING_RETURN;
 }
 
@@ -171,6 +182,10 @@ void returnToStart() {
 
 
 void waitForImpact() {
+  float xAccel, yAccel, zAccel;
+  do {
+    getAcceleration(xAccel, yAccel, zAccel); 
+  }
   // wait for the total acceleration to be greater than 1.5g
   
   // set mode to braking
@@ -247,6 +262,19 @@ void updateLEDs(int status) {
 }
 
 
-void getAcceleration(int *x, int *y, int *z) {
-  adxl.readAccel(x, y, z);
+void getAcceleration(float &x, float &y, float &z) {
+  int xAccel, yAccel, zAccel;
+  adxl.readAccel(&xAccel, &yAccel, &zAccel);
+  
+  // first we need to multiply by the sensitivity(mg/increment) and then divide
+  // by 1000 to convert from mg to g
+  x = xAccel * ADXL_SENSITIVITY / 1000;
+  y = yAccel * ADXL_SENSITIVITY / 1000;
+  z = zAccel * ADXL_SENSITIVITY / 1000;
 }
+
+
+float getMagnitude(float x, float y, float z) {
+  return 0.0f
+}
+
