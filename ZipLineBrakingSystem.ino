@@ -110,3 +110,7 @@ int getTemperature() {
 void returnToStart() {
 }
 
+
+void getAcceleration(int *x, int *y, int *z) {
+  adxl.readAccel(x, y, z);
+}
