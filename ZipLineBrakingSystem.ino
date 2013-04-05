@@ -39,8 +39,17 @@ ADXL345 adxl;
 #define LED_OFF 0
 #define LED_ON 1
 
+
 // Interrupt Definitions
 #define RETURN_IRQ 0
+
+
+// System Operating Modes
+#define MODE_AWAITING_RETURN 0
+#define MODE_RETURNING 1
+#define MODE_AWAITING_IMPACT 2
+#define MODE_BRAKING 3
+int mode;
 
 
 void setup() {
@@ -54,11 +63,28 @@ void setup() {
   adxl.powerOn();
   
   // Set up interrupts
-  attachInterrupt(RETURN_IRQ, returnToStart, RISING);
+  attachInterrupt(RETURN_IRQ, setModeReturning, RISING);
+  
+  mode = MODE_AWAITING_RETURN;
 }
 
 
 void loop() {
+  switch (mode) {
+    case MODE_AWAITING_RETURN:
+      break;
+    case MODE_RETURNING:
+      returnToStart();
+      break;
+    case MODE_AWAITING_IMPACT:
+      waitForImpact();
+      break;
+    case MODE_BRAKING:
+      slowToStop();
+      break;
+    default:
+      break;
+  }
 }
 
 
@@ -107,7 +133,39 @@ int getTemperature() {
 }
 
 
+void setModeReturning() {
+  mode = MODE_RETURNING;
+}
+
+
 void returnToStart() {
+  // check the system status to ensure ready to return
+  
+  // start return trip
+  
+  // stop moving when distance reached
+  
+  // apply hold brake force
+  
+  // set mode to waiting for impact
+}
+
+
+void waitForImpact() {
+  // wait for the total acceleration to be greater than 1.5g
+  
+  // set mode to braking
+}
+
+
+void slowToStop() {
+  // determine velocity using acceleration and Vo = 0
+  
+  // determine the acceleration needed to slow to 0 m/s in the given distance
+  
+  // determine braking force needed to achieve the desired acceleration
+  
+  // once velocity is near 0, or acceleration is near 1g, set mode to return waiting
 }
 
 
