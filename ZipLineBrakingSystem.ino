@@ -15,6 +15,7 @@
 #define BATTERY_PIN       0
 #define BATTERY_LEVEL_MIN 25
 
+
 // Temperature Sensor Definitions
 #define TMP36_VOUT                    1
 #define TMP36_MILLIVOLTS_PER_DEGREE_C 10
@@ -25,7 +26,10 @@
 #define BRAKES_OFF  0
 #define BRAKES_HOLD 165
 #define BRAKES_FULL 175
+#define BRAKE_DISTANCE_ADDRESS 0
 
+// total distance of the brake section of the zip line
+int brakingDistance;
 Servo brakeServo;
 
 
@@ -33,9 +37,13 @@ Servo brakeServo;
 #define ADXL345SCL_PIN 5
 #define ADXL345SDA_PIN 4
 #define ADXL_SENSITIVITY 62.5f
+#define IMPACT_THRESHOLD 1.5f
 
 ADXL345 adxl;
-
+unsigned long impactTime;
+float impactXAccel;
+float impactYAccel;
+float impactZAccel;
 
 // LED Definitions
 #define LED0    7
@@ -44,6 +52,10 @@ ADXL345 adxl;
 #define LED3    13
 #define LED_OFF 0
 #define LED_ON  1
+
+
+// Motor Definitions
+#define RETURN_TO_START_SPEED 0.6
 
 
 // Interrupt Definitions
@@ -72,13 +84,6 @@ int mode;
 #define TEMP_OK_LED          LED3
 
 
-// EEPROM Definitions
-#define BRAKE_DISTANCE_ADDRESS 0
-
-// total distance of the brake section of the zip line
-int brakeDistance;
-
-
 void setup() {
   // Set initial pin modes
   pinMode(SECURE_PIN, INPUT);
@@ -92,7 +97,7 @@ void setup() {
   // Set up interrupts
   attachInterrupt(RETURN_IRQ, setModeReturning, RISING);
   
-  brakeDistance = EEPROM.read(BRAKE_DISTANCE_ADDRESS);
+  brakingDistance = EEPROM.read(BRAKE_DISTANCE_ADDRESS);
   mode = MODE_AWAITING_RETURN;
 }
 
@@ -171,24 +176,48 @@ void returnToStart() {
   int status = getSystemStatus();
   updateLEDs(status);
   
-  // start return trip
+  // determine time(ms) needed to reach start distance
+  unsigned long returnTime = (unsigned long)(brakingDistance /
+                                             RETURN_TO_START_SPEED *
+                                             1000);
+  
+  // start return trip (set motor speed in m/s)
+  setMotorSpeed(RETURN_TO_START_SPEED);
+  
+  noInterrupts();
+  delay(returnTime);
+  interrupts();
   
   // stop moving when distance reached
+  setMotorSpeed(0);
   
   // apply hold brake force
+  setBrakeServoAngle(BRAKES_HOLD);
   
   // set mode to waiting for impact
+  mode = MODE_AWAITING_IMPACT;
 }
 
 
 void waitForImpact() {
   float xAccel, yAccel, zAccel;
+  unsigned long time;
+  
   do {
-    getAcceleration(xAccel, yAccel, zAccel); 
-  }
+    noInterrupts();
+    getAcceleration(xAccel, yAccel, zAccel);
+    time = millis();
+    interrupts();
+  } while (getMagnitude(xAccel, yAccel, zAccel) < IMPACT_THRESHOLD);
   // wait for the total acceleration to be greater than 1.5g
   
+  impactXAccel = xAccel;
+  impactYAccel = yAccel;
+  impactZAccel = zAccel;
+  impactTime = time;
+  
   // set mode to braking
+  mode = MODE_BRAKING;
 }
 
 
@@ -200,6 +229,10 @@ void slowToStop() {
   // determine braking force needed to achieve the desired acceleration
   
   // once velocity is near 0, or acceleration is near 1g, set mode to return waiting
+}
+
+
+void setMotorSpeed(float speed) {
 }
 
 
@@ -275,6 +308,6 @@ void getAcceleration(float &x, float &y, float &z) {
 
 
 float getMagnitude(float x, float y, float z) {
-  return 0.0f
+  return sqrt(x*x + y*y + z*z);
 }
 
